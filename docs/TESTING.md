@@ -34,14 +34,31 @@ Manual checks per file:
 ## Thumbnails
 
 ```sh
-yay -S stl-thumb
-./install.sh            # picks up the .thumbnailer now that stl-thumb exists
+sudo pacman -S f3d
+./install.sh            # installs the .thumbnailer (all-/usr Exec, sandbox-safe)
+# Direct check (same render Nautilus runs, minus the sandbox):
+timeout 120 env -u WAYLAND_DISPLAY EGL_PLATFORM=surfaceless LIBGL_ALWAYS_SOFTWARE=1 \
+  f3d tests/fixtures/cube_ascii.stl --rendering-backend=egl \
+  --resolution 256,256 --filename=false --axis=false --grid=false \
+  --background-color=#efe3c8 --up=+Z --camera-direction=-1,1,-0.5 \
+  --output /tmp/thumb-test.png
 rm -rf ~/.cache/thumbnails/*
 nautilus -q
 ```
 
 Browse a folder of `.stl` files in grid view: thumbnails appear after a
 moment (first render downloads nothing — local files only by design).
+
+Backend note: `stl-thumb` (AUR) was tried first but its vendored glium 0.31
+panics on modern Mesa (`get_format.rs:135`), so thumbnails go through f3d
+instead. Two sandbox gotchas, both handled in `thumbnailers/stl.thumbnailer`:
+the Exec line must reference only `/usr` paths (bwrap mounts just `/usr`
+read-only, so `~/.local/bin` wrappers are invisible), and the camera flags
+(`--up=+Z --camera-direction=-1,1,-0.5`, mirroring
+`/etc/f3d/config.d/10_native.json`) must be explicit because the sandbox
+hides `/etc` and f3d's default camera lands inside the model. EGL surfaceless
+needs no X server — Xvfb was tried and aborts under the sandbox seccomp
+filter.
 
 ## SMB
 

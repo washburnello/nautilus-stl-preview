@@ -12,9 +12,9 @@ zoom — plus grid thumbnails. The 3D viewer is a port of the
 - **Z-up toggle**: icon-only toolbar button (`go-jump-symbolic-rtl`, no text,
   tooltip explains when to use it). Session-only — resets when the preview
   closes.
-- **Thumbnails**: grid previews via
-  [stl-thumb](https://github.com/unlimitedbacon/stl-thumb),
-  local files only (see SMB note).
+- **Thumbnails**: grid previews via [f3d](https://f3d-app.github.io/f3d)
+  rendered offscreen (EGL surfaceless, no display server) with a beige
+  background matching monster shelf. Local files only (see SMB note).
 - Works on sushi **50** (`~/.local/share/sushi/viewers/`) and **51+**
   (`~/.local/share/sushi/plugins-1/`, GTK4/Adw entry included).
 
@@ -22,7 +22,7 @@ zoom — plus grid thumbnails. The 3D viewer is a port of the
 
 ```sh
 git clone <this-repo> && cd nautilus-stl-preview
-yay -S stl-thumb        # thumbnail renderer (AUR); skip if you only want Space-preview
+sudo pacman -S f3d   # thumbnail renderer; skip if Space-preview only
 ./install.sh
 nautilus -q
 ```

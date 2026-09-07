@@ -1,0 +1,15 @@
+[Thumbnailer Entry]
+# Everything on this Exec line lives under /usr: the thumbnail sandbox
+# (bwrap) mounts only /usr read-only plus the input file and a scratch /tmp,
+# so anything in $HOME (e.g. ~/.local/bin) is invisible to it.
+# - env drops WAYLAND_DISPLAY (winit would otherwise try the unreachable
+#   Wayland socket instead of Xvfb) and forces software GL for determinism.
+# - EGL surfaceless renders with no display server at all (no Xvfb needed —
+#   Xvfb aborts under the sandbox's seccomp filter). Software GL keeps
+#   output deterministic across GPUs.
+# - --up/--camera-direction repeat /etc/f3d/config.d/10_native.json's STL
+#   preset, because the sandbox hides /etc and f3d's default camera ends up
+#   inside the model. Explicit flags keep local and sandboxed renders equal.
+TryExec=/usr/bin/f3d
+Exec=/usr/bin/timeout 120 /usr/bin/env -u WAYLAND_DISPLAY EGL_PLATFORM=surfaceless LIBGL_ALWAYS_SOFTWARE=1 /usr/bin/f3d %i --rendering-backend=egl --resolution %s,%s --filename=false --axis=false --grid=false --background-color=#efe3c8 --up=+Z --camera-direction=-1,1,-0.5 --output %o
+MimeType=model/stl;model/mesh;application/sla;
