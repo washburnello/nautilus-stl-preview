@@ -14,10 +14,6 @@ sushi plugin.
   fast. Click (or its button) swaps in the interactive three.js render,
   vendored offline (no CDN). Drag to rotate, scroll to zoom, no file-size
   cap: if it fits in RAM, it previews (a 401MB ASCII model loads, ~1min).
-- **Z-up toggle**: icon-only toolbar button (`go-jump-symbolic-rtl`, no text,
-  tooltip explains when to use it; the toolbar auto-hides — hover the window
-  to reveal it). Session-only — resets when the preview closes. Can be
-  flipped before the model finishes loading; applies on arrival.
 - **Thumbnails**: grid previews via [f3d](https://f3d-app.github.io/f3d)
   rendered offscreen (EGL surfaceless, no display server) with a beige
   background matching monster shelf. Local files only (see SMB note).

@@ -29,11 +29,7 @@ Two phases — static first, interactive on click:
 2. Click → three.js view with filename top-left and
    `drag to rotate · scroll to zoom` bottom-right.
 3. Drag rotates, wheel zooms, no panning.
-4. Hover the window → toolbar appears with the jump-arrows toggle
-   (`go-jump-symbolic-rtl`, icon only). Click it → model rotates upright and
-   the button highlights; click again → back. Close + reopen → toggle reset.
-   Toggling before the model arrives applies on arrival.
-5. Corrupt input (e.g. truncated copy of a fixture) shows
+4. Corrupt input (e.g. truncated copy of a fixture) shows
    `Failed to load model: …`, not a spinner forever.
 6. Scrub test: open a preview, arrow through several STLs in Nautilus —
    each step shows static instantly, no heavy loads until clicked.

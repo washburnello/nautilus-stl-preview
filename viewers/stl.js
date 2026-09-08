@@ -9,8 +9,8 @@
  *      local files, otherwise a placeholder. Scrubbing through files with
  *      the arrow keys never pays for more than this.
  *   2. INTERACTIVE — click the static image (or its button) to swap in the
- *      three.js WebView (vendored, offline) with drag-to-rotate,
- *      scroll-to-zoom and a session-only Z-up toggle in the toolbar.
+ *      three.js WebView (vendored, offline) with drag-to-rotate and
+ *      scroll-to-zoom.
  *
  * The WebView loads its page from file:// and the model bytes are injected
  * via run_javascript as base64. Gio reads the file, so local paths and
@@ -29,7 +29,6 @@ try {
 }
 
 const Renderer = imports.ui.renderer;
-const Utils = imports.ui.utils;
 
 const VIEWER_DIR = GLib.build_filenamev([GLib.get_user_data_dir(), 'sushi', 'stl-preview']);
 const VIEWER_PAGE = GLib.build_filenamev([VIEWER_DIR, 'stl-viewer.html']);
@@ -84,7 +83,6 @@ var Klass = _isAvailable() ? GObject.registerClass({
 
         this._file = file;
         this._fileInfo = fileInfo;
-        this._zUp = false;
         this._webview = null;
         this._destroyed = false;
         this._cancellable = new Gio.Cancellable();
@@ -380,47 +378,9 @@ var Klass = _isAvailable() ? GObject.registerClass({
                         webview.run_javascript_finish(result);
                     } catch (e) {
                         logError(e, 'STL preview injection failed');
-                        return;
-                    }
-                    // Apply any Z-up toggle flipped while loading.
-                    if (this._zUp) {
-                        this._webview.run_javascript(
-                            'window.__stlSetZUp(true)', null, null);
                     }
                 });
         });
-    }
-
-    _setZUp(next) {
-        this._zUp = next;
-        if (this._webview) {
-            this._webview.run_javascript(
-                `window.__stlSetZUp(${next ? 'true' : 'false'})`, null, null);
-        }
-        if (this._zToggle) {
-            const ctx = this._zToggle.get_style_context();
-            if (next)
-                ctx.add_class('suggested-action');
-            else
-                ctx.remove_class('suggested-action');
-            this._zToggle.tooltip_text = next
-                ? 'Z-up on (model rotated upright). Click to switch back.'
-                : 'Toggle Z-up orientation (use when the model appears lying down)';
-        }
-    }
-
-    populateToolbar(toolbar) {
-        const theme = Gtk.IconTheme.get_default();
-        let icon = 'view-refresh-symbolic';
-        if (theme && theme.has_icon('go-jump-symbolic-rtl'))
-            icon = 'go-jump-symbolic-rtl';
-
-        this._zToggle = Utils.createToolButton(this, icon, () => {
-            this._setZUp(!this._zUp);
-        });
-        this._zToggle.tooltip_text =
-            'Toggle Z-up orientation (use when the model appears lying down)';
-        toolbar.add(this._zToggle);
     }
 
     get moveOnClick() {

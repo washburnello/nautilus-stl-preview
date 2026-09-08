@@ -4,7 +4,7 @@
  * Same two-phase design as the v50 entry (../viewers/stl.js): an instant
  * static render (cached thumbnail, f3d snapshot, or placeholder) with a
  * click-to-load swap into the bundled three.js WebView. Only the shell
- * differs (Adw.Bin + overlay buttons instead of a toolbar).
+ * differs (Adw.Bin + overlay load button instead of GTK3 widgets).
  *
  * NOTE: written against upstream plugins/example.js + plugin-api-1.js and
  * NOT yet runtime-tested — the author's machine runs sushi 50. If you can
@@ -48,7 +48,6 @@ export const Klass = class STLRenderer extends Adw.Bin {
 
         this._file = file;
         this._fileInfo = fileInfo;
-        this._zUp = false;
         this._webview = null;
         this._destroyed = false;
         this._cancellable = new Gio.Cancellable();
@@ -61,16 +60,6 @@ export const Klass = class STLRenderer extends Adw.Bin {
             } catch (e) { /* already gone */ }
         });
 
-        this._toggle = new Gtk.Button({
-            icon_name: 'go-jump-symbolic-rtl',
-            halign: Gtk.Align.END,
-            valign: Gtk.Align.START,
-            margin_top: 8,
-            margin_end: 8,
-            tooltip_text: 'Toggle Z-up orientation (use when the model appears lying down)',
-        });
-        this._toggle.connect('clicked', () => this._setZUp(!this._zUp));
-
         this._loadButton = new Gtk.Button({
             label: `Load interactive model (${fmtSize(fileInfo.get_size())})`,
             halign: Gtk.Align.CENTER,
@@ -81,7 +70,6 @@ export const Klass = class STLRenderer extends Adw.Bin {
         this._loadButton.connect('clicked', () => this._loadInteractive());
 
         this._overlay = new Gtk.Overlay();
-        this._overlay.add_overlay(this._toggle);
         this._overlay.add_overlay(this._loadButton);
         this.set_child(this._overlay);
 
@@ -235,20 +223,6 @@ export const Klass = class STLRenderer extends Adw.Bin {
         const name = this._file.get_basename()
             .replace(/\\/g, '\\\\').replace(/"/g, '\\"').replace(/\n/g, '\\n');
         this._eval(`window.__stlLoad("${GLib.base64_encode(contents)}","${name}")`);
-        if (this._zUp)
-            this._eval('window.__stlSetZUp(true)');
-    }
-
-    _setZUp(next) {
-        this._zUp = next;
-        this._eval(`window.__stlSetZUp(${next ? 'true' : 'false'})`);
-        if (next)
-            this._toggle.add_css_class('suggested-action');
-        else
-            this._toggle.remove_css_class('suggested-action');
-        this._toggle.tooltip_text = next
-            ? 'Z-up on (model rotated upright). Click to switch back.'
-            : 'Toggle Z-up orientation (use when the model appears lying down)';
     }
 };
 

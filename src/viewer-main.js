@@ -15,7 +15,6 @@ let scene = null;
 let camera = null;
 let controls = null;
 let mesh = null;
-let zUp = false;
 
 function el(id) {
   return document.getElementById(id);
@@ -130,7 +129,6 @@ window.__stlLoad = function (b64, name) {
 
       const material = new THREE.MeshStandardMaterial(MATERIAL);
       mesh = new THREE.Mesh(geometry, material);
-      if (zUp) mesh.rotation.x = -Math.PI / 2;
       scene.add(mesh);
       fitCamera(radius);
 
@@ -148,12 +146,6 @@ window.__stlLoad = function (b64, name) {
 // already visible, leaving fresh opens stuck invisible.
 window.__stlError = function (text) {
   showError(text);
-};
-
-// Called by the toolbar toggle. Session-only state, resets on close.
-window.__stlSetZUp = function (next) {
-  zUp = !!next;
-  if (mesh) mesh.rotation.x = zUp ? -Math.PI / 2 : 0;
 };
 
 initScene();
