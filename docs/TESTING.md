@@ -20,16 +20,36 @@ sushi tests/fixtures/cube_ascii.stl    # ASCII — expect a beige cube
 sushi tests/fixtures/sphere_binary.stl # binary — expect a faceted sphere
 ```
 
-Manual checks per file:
+Two phases — static first, interactive on click:
 
-1. Model renders with filename top-left and `drag to rotate · scroll to zoom`
-   bottom-right.
-2. Drag rotates, wheel zooms, no panning.
-3. Hover the window → toolbar appears with the jump-arrows toggle
+1. Window opens **instantly** on a static render: cached thumbnail when
+   present, else a quick f3d snapshot (spinner, small local files only),
+   else a placeholder with filename. Each carries a
+   `Load interactive model (X MB)` button; clicking the image works too.
+2. Click → three.js view with filename top-left and
+   `drag to rotate · scroll to zoom` bottom-right.
+3. Drag rotates, wheel zooms, no panning.
+4. Hover the window → toolbar appears with the jump-arrows toggle
    (`go-jump-symbolic-rtl`, icon only). Click it → model rotates upright and
    the button highlights; click again → back. Close + reopen → toggle reset.
-4. Corrupt input (e.g. truncated copy of a fixture) shows
+   Toggling before the model arrives applies on arrival.
+5. Corrupt input (e.g. truncated copy of a fixture) shows
    `Failed to load model: …`, not a spinner forever.
+6. Scrub test: open a preview, arrow through several STLs in Nautilus —
+   each step shows static instantly, no heavy loads until clicked.
+7. Destroy test: open a large file, click Load, close the window mid-load —
+   no `Gjs-CRITICAL … already disposed` in the service log (async callbacks
+   are destroy-guarded + cancellable).
+8. Large file: no size cap — a 401MB ASCII model loads (~1min, ~2GB peak
+   WebProcess RSS on a 15GB machine). Far bigger than RAM just won't fit;
+   that's the only limit.
+
+History: an early version capped files at 200MB (inherited from monster
+shelf's browser constraints) with a broken error constructor
+(`Gio.IOError.TOO_BIG` doesn't exist — threw `TypeError`, causing silent
+no-opens and stuck throbbers). Both fixed: cap removed, errors render
+in-page via `__stlError` (sushi's `error` signal never surfaces on a fresh
+open — verified with a corrupt PNG against stock sushi).
 
 ## Thumbnails
 
@@ -64,7 +84,8 @@ filter.
 
 With `show-image-thumbnails 'local-only'` (default, left untouched):
 grid view over `smb://` shows generic STL icons (correct). Space-preview on
-a remote file still renders (streams on demand).
+a remote file shows the placeholder (no cached thumbs remotely) and streams
+on click.
 
 ## Sushi 51 (un runtime-tested)
 

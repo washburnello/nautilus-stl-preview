@@ -1,17 +1,23 @@
 # nautilus-stl-preview
 
-Interactive STL previews for GNOME Files (Nautilus): press **Space** on an
-`.stl` file to get a rendered 3D view you can drag to rotate and scroll to
-zoom — plus grid thumbnails. The 3D viewer is a port of the
-[monster shelf](https://github.com/) `StlViewer` (three.js) to a sushi plugin.
+STL previews for GNOME Files (Nautilus): press **Space** on an `.stl` file
+for an instant static render, click it to load a full 3D view you can drag
+to rotate and scroll to zoom — plus grid thumbnails. The 3D viewer is a port
+of the [monster shelf](https://github.com/) `StlViewer` (three.js) to a
+sushi plugin.
 
 ## Features
 
-- **Space-preview**: three.js render via a custom sushi viewer, vendored
-  offline (no CDN). Drag to rotate, scroll to zoom.
+- **Space-preview, two phases** (mirrors monster shelf's ArmiesPage):
+  instant static image first — the file's cached thumbnail, a quick f3d
+  snapshot, or a placeholder — so arrow-key scrubbing through folders stays
+  fast. Click (or its button) swaps in the interactive three.js render,
+  vendored offline (no CDN). Drag to rotate, scroll to zoom, no file-size
+  cap: if it fits in RAM, it previews (a 401MB ASCII model loads, ~1min).
 - **Z-up toggle**: icon-only toolbar button (`go-jump-symbolic-rtl`, no text,
-  tooltip explains when to use it). Session-only — resets when the preview
-  closes.
+  tooltip explains when to use it; the toolbar auto-hides — hover the window
+  to reveal it). Session-only — resets when the preview closes. Can be
+  flipped before the model finishes loading; applies on arrival.
 - **Thumbnails**: grid previews via [f3d](https://f3d-app.github.io/f3d)
   rendered offscreen (EGL surfaceless, no display server) with a beige
   background matching monster shelf. Local files only (see SMB note).
@@ -36,9 +42,9 @@ and a Wayland/NVIDIA WebKit workaround to `~/.config/environment.d/`
 
 Thumbnails stay **local-only** (Nautilus default `show-image-thumbnails` is
 untouched): `smb://` files show generic icons in grid view. Space-preview
-still works over SMB — the file is streamed on demand with a progress
-indicator. Files over 200MB are refused with a clear error rather than
-hanging the previewer.
+still works over SMB — static phase shows a placeholder (no cached thumbs
+for remote files), and clicking streams the file on demand with a progress
+indicator.
 
 ## Known issues
 
