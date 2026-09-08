@@ -142,6 +142,14 @@ window.__stlLoad = function (b64, name) {
   }, 30);
 };
 
+// Called by the sushi wrapper to display a fatal error (e.g. file too
+// large) inside the page. Rendered in-page — not via sushi's 'error'
+// signal — because sushi only surfaces renderer errors when the window is
+// already visible, leaving fresh opens stuck invisible.
+window.__stlError = function (text) {
+  showError(text);
+};
+
 // Called by the toolbar toggle. Session-only state, resets on close.
 window.__stlSetZUp = function (next) {
   zUp = !!next;

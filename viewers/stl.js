@@ -92,9 +92,16 @@ var Klass = _isAvailable() ? GObject.registerClass({
             Gio.FILE_ATTRIBUTE_STANDARD_SIZE,
             Gio.FileQueryInfoFlags.NONE, null).get_size();
         if (size > MAX_BYTES) {
-            this.emit('error', new GLib.Error(
-                Gio.io_error_quark(), Gio.IOError.TOO_BIG,
-                'File is too large for interactive preview'));
+            // Shown in-page (not via the 'error' signal): sushi only
+            // surfaces renderer errors in an already-visible window, so a
+            // fresh open would stay invisible forever.
+            const mb = (size / 1024 / 1024).toFixed(0);
+            const limit = (MAX_BYTES / 1024 / 1024).toFixed(0);
+            const msg = `File is too large for interactive preview (${mb} MB; limit ${limit} MB)`;
+            this.run_javascript(
+                `window.__stlError("${_escapeJsString(msg)}")`,
+                null,
+                () => { this.isReady(); });
             return;
         }
 
