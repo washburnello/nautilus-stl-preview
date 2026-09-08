@@ -18,7 +18,7 @@
  * sandboxed context with no file access of its own.
  */
 
-const { GdkPixbuf, Gio, GLib, GObject, Gtk } = imports.gi;
+const { Gdk, GdkPixbuf, Gio, GLib, GObject, Gtk } = imports.gi;
 
 let WebKit2;
 try {
@@ -157,6 +157,10 @@ var Klass = _isAvailable() ? GObject.registerClass({
             vexpand: true,
         });
         click.add(image);
+        // Motion mask: without a widget selecting for pointer motion, the
+        // preview window never sees motion-notify and its auto-hiding
+        // toolbar (with our Z-up toggle) won't reveal on hover.
+        click.add_events(Gdk.EventMask.POINTER_MOTION_MASK);
         // Stop propagation so the click loads the model instead of
         // dragging the preview window (see moveOnClick).
         click.connect('button-press-event', () => {
@@ -190,6 +194,7 @@ var Klass = _isAvailable() ? GObject.registerClass({
         box.add(new Gtk.Label({ label: labelText }));
         const click = new Gtk.EventBox();
         click.add(box);
+        click.add_events(Gdk.EventMask.POINTER_MOTION_MASK);
         click.connect('button-press-event', () => {
             this._loadInteractive();
             return true;
